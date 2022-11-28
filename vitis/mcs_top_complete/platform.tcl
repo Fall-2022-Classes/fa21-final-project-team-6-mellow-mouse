@@ -18,3 +18,4 @@ platform generate -domains
 platform active {mcs_top_complete}
 platform generate -quick
 platform generate
+platform config -updatehw {D:/final/complete/mcs_top_complete.xsa}
