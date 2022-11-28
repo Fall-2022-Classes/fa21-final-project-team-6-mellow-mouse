@@ -1,0 +1,13 @@
+# .Xil
+*.cache
+# *.hw
+# *.ip_user_files
+*.runs
+*.log
+*.jou
+# *.sim
+# *.out*
+# *build
+# *utils_1
+*.str
+*.DS_Store
