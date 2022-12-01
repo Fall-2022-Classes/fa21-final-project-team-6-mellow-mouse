@@ -18,8 +18,8 @@ module ghost_src
    );
    
    // localparam declaration
-   localparam H_SIZE = 40; // horizontal size of sprite
-   localparam V_SIZE = 40; // vertical size of sprite
+   localparam H_SIZE = 64; // horizontal size of sprite
+   localparam V_SIZE = 64; // vertical size of sprite
    // signal delaration
    logic signed [11:0] xr, yr;  // relative x/y position
    logic in_region;
@@ -51,7 +51,7 @@ module ghost_src
    ghost_ram_lut #(.ADDR_WIDTH(ADDR), .DATA_WIDTH(2)) ram_unit (
       .clk(clk), .we(we), .addr_w(addr_w), .din(pixel_in),
       .addr_r(addr_r), .dout(plt_code));
-   assign addr_r = {sid, yr[3:0], xr[3:0]};
+   assign addr_r = {sid, yr[5:0], xr[5:0]};
  
    //******************************************************************
    // ghost color control

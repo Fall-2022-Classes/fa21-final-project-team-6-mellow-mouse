@@ -26,7 +26,7 @@ module chu_vga_sprite_ghost_core
 
    // body
    // instantiate sprite generator
-   ghost_src #(.CD(12), .KEY_COLOR(0)) ghost_src_unit (
+   ghost_src #(.CD(12), .ADDR(ADDR_WIDTH), .KEY_COLOR(0)) ghost_src_unit (
        .clk(clk), .x(x), .y(y), .x0(x0_reg), .y0(y0_reg),
        .ctrl(ctrl_reg), .we(wr_ram), .addr_w(addr[ADDR_WIDTH-1:0]),
        .pixel_in(wr_data[1:0]), .sprite_rgb(sprite_rgb));

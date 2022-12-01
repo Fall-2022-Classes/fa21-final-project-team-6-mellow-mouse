@@ -149,7 +149,7 @@ module video_sys_daisy
    );
    // instantiate ghost sprite
    chu_vga_sprite_ghost_core 
-       #(.CD(CD), .ADDR_WIDTH(10), .KEY_COLOR(KEY_COLOR)) 
+       #(.CD(CD), .ADDR_WIDTH(14), .KEY_COLOR(KEY_COLOR)) 
    v3_ghost_unit (
       .clk(clk_sys),
       .reset(reset_sys),

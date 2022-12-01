@@ -18,7 +18,7 @@ module ghost_ram_lut
    
    // ghost_bitmap.txt specifies the initial values of ram 
    initial 
-      $readmemb("ghost_bitmap.txt", ram);
+      $readmemb("hampster.txt", ram);
       
    // body
    always_ff @(posedge clk)

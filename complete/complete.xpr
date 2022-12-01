@@ -681,14 +681,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/imports/txt_files/ghost_bitmap.txt">
-        <FileInfo SFType="MIF">
-          <Attr Name="ImportPath" Val="$PPRDIR/../../school_cs/ECE 4305-01/ece_4305/M15 to M18 - Complete System/HDL/txt_files/ghost_bitmap.txt"/>
-          <Attr Name="ImportTime" Val="1661161205"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PSRCDIR/sources_1/imports/txt_files/sin_table.txt">
         <FileInfo SFType="MIF">
           <Attr Name="ImportPath" Val="$PPRDIR/../../school_cs/ECE 4305-01/ece_4305/M15 to M18 - Complete System/HDL/txt_files/sin_table.txt"/>
@@ -701,6 +693,12 @@
         <FileInfo SFType="MIF">
           <Attr Name="ImportPath" Val="$PPRDIR/../../school_cs/ECE 4305-01/ece_4305/M15 to M18 - Complete System/HDL/txt_files/mouse_pointer.txt"/>
           <Attr Name="ImportTime" Val="1661161205"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/txt_files/hampster.txt">
+        <FileInfo SFType="MIF">
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
