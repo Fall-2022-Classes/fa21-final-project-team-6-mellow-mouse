@@ -41,3 +41,9 @@ platform generate
 platform config -updatehw {D:/final/complete/mcs_top_complete.xsa}
 platform clean
 platform generate
+platform generate
+platform active {mcs_top_complete}
+platform config -updatehw {D:/final/complete/mcs_top_complete.xsa}
+platform generate -domains 
+platform clean
+platform generate
