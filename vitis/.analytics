@@ -184,3 +184,28 @@ timestamp=[2022-12-05 13:46:32], mode=BUILD, duration=0:00:00.732, duration_ms=7
 timestamp=[2022-12-05 13:49:18], mode=BUILD, duration=0:00:00.736, duration_ms=736, data={name=pet_game, configuration=Debug, clean_build=false}
 timestamp=[2022-12-05 13:51:44], mode=BUILD, duration=0:00:00.740, duration_ms=740, data={name=pet_game, configuration=Debug, clean_build=false}
 timestamp=[2022-12-05 13:52:55], mode=BUILD, duration=0:00:00.767, duration_ms=767, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 13:55:18], mode=BUILD, duration=0:00:01.087, duration_ms=1087, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 13:55:26], mode=BUILD, duration=0:00:00.769, duration_ms=769, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 13:57:46], mode=BUILD, duration=0:00:00.866, duration_ms=866, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 13:59:33], mode=BUILD, duration=0:00:00.814, duration_ms=814, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:02:09], mode=BUILD, duration=0:00:00.789, duration_ms=789, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:03:26], mode=PLATFORM_GENERATION, duration=0:00:02.600, duration_ms=2600, data={name=mcs_top_complete}
+timestamp=[2022-12-05 14:03:26], mode=BUILD, duration=0:00:00.195, duration_ms=195, data={name=pet_game, configuration=Debug, clean_build=true}
+timestamp=[2022-12-05 14:03:27], mode=BUILD, duration=0:00:00.170, duration_ms=170, data={name=pet_game_system, configuration=Debug, clean_build=true}
+timestamp=[2022-12-05 14:03:32], mode=PLATFORM_GENERATION, duration=0:00:05.403, duration_ms=5403, data={name=mcs_top_complete}
+timestamp=[2022-12-05 14:03:37], mode=BUILD, duration=0:00:04.287, duration_ms=4287, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:03:37], mode=BUILD, duration=0:00:00.127, duration_ms=127, data={name=pet_game_system, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:04:50], mode=BUILD, duration=0:00:01.044, duration_ms=1044, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:06:13], mode=BUILD, duration=0:00:00.718, duration_ms=718, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:06:56], mode=BUILD, duration=0:00:00.775, duration_ms=775, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:07:47], mode=BUILD, duration=0:00:00.768, duration_ms=768, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:12:18], mode=BUILD, duration=0:00:01.076, duration_ms=1076, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:15:01], mode=BUILD, duration=0:00:00.700, duration_ms=700, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:15:24], mode=BUILD, duration=0:00:00.739, duration_ms=739, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:19:10], mode=BUILD, duration=0:00:00.380, duration_ms=380, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:19:28], mode=BUILD, duration=0:00:00.791, duration_ms=791, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:25:32], mode=BUILD, duration=0:00:00.318, duration_ms=318, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:28:05], mode=BUILD, duration=0:00:00.379, duration_ms=379, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:30:23], mode=BUILD, duration=0:00:01.488, duration_ms=1488, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:30:38], mode=BUILD, duration=0:00:01.348, duration_ms=1348, data={name=pet_game, configuration=Debug, clean_build=false}
+timestamp=[2022-12-05 14:32:42], mode=BUILD, duration=0:00:00.694, duration_ms=694, data={name=pet_game, configuration=Debug, clean_build=false}
