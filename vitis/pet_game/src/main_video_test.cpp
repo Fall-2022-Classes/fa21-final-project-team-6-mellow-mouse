@@ -16,77 +16,6 @@
 #include "sseg_core.h"
 #include "ps2_core.h"
 #include "spi_core.h"
-void ps2_check(Ps2Core *ps2_p)
-{
-   int id;
-   int lbtn, rbtn, xmov, ymov;
-   char ch;
-   unsigned long last;
-
-   uart.disp("\n\rPS2 device (1-keyboard / 2-mouse): ");
-   id = ps2_p->init();
-   uart.disp(id);
-   uart.disp("\n\r");
-   last = now_ms();
-   do
-   {
-      if (id == 2)
-      { // mouse
-         if (ps2_p->get_mouse_activity(&lbtn, &rbtn, &xmov, &ymov))
-         {
-            uart.disp("[");
-            uart.disp(lbtn);
-            uart.disp(", ");
-            uart.disp(rbtn);
-            uart.disp(", ");
-            uart.disp(xmov);
-            uart.disp(", ");
-            uart.disp(ymov);
-            uart.disp("] \r\n");
-            last = now_ms();
-
-         } // end get_mouse_activitiy()
-      }
-      else
-      {
-         if (ps2_p->get_kb_ch(&ch))
-         {
-            uart.disp(ch);
-            uart.disp(" ");
-            last = now_ms();
-         } // end get_kb_ch()
-      }    // end id==2
-   } while (now_ms() - last < 5000);
-   uart.disp("\n\rExit PS2 test \n\r");
-}
-
-/**
- * test ghost sprite
- * @param ghost_p pointer to ghost sprite instance
- */
-void ghost_check(SpriteCore *ghost_p)
-{
-   int x, y;
-
-   // slowly move mouse pointer
-   ghost_p->bypass(0);
-   ghost_p->wr_ctrl(0x18); // animation; blue ghost
-   x = 50;
-   y = 100;
-   ghost_p->move_xy(x, y);
-   // for (int i = 0; i < 156; i++)
-   // {
-   //    ghost_p->move_xy(x, y);
-   //    sleep_ms(100);
-   //    x = x + 4;
-   //    if (i == 80)
-   //    {
-   //       // change to red ghost half way
-   //       ghost_p->wr_ctrl(0x00);
-   //    }
-   // }
-   sleep_ms(3000);
-}
 
 /**********************************************************************
  * enums and structs
@@ -149,6 +78,7 @@ struct acc_vals
 /**********************************************************************
  * Functions
  **********************************************************************/
+void draw_bars(OsdCore *osd_p, health *bars);
 
 void change_scene(int scene, FrameCore *frame_p)
 {
@@ -179,45 +109,99 @@ void change_scene(int scene, FrameCore *frame_p)
    }
 }
 
-void feed(health *bars, FrameCore *frame_p)
+/* 
+   smiley = 0, 1
+   big exlamation 32
+*/
+void feed(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
+   // draw dots for food
    change_scene(1, frame_p);
-   (*bars).hunger = 10;
+   bars->hunger = 10;
+   // for (int i = 0; i < 6; i++)
+   // {
+   //    osd_p->wr_char(32 + i, 14, 7); // dots = 6,7,8,9
+   //    sleep_ms(500);
+   //    osd_p->clr_screen();
+   //    draw_bars(osd_p, bars);
+   // }
    sleep_ms(3000);
    change_scene(0, frame_p);
 }
-void shower(health *bars, FrameCore *frame_p)
+void shower(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
+   // draw water drops and maybe music note?
    change_scene(2, frame_p);
-   (*bars).cleanliness = 10;
-   sleep_ms(3000);
+   bars->cleanliness = 10;
+   for (int i = 0; i < 6; i++)
+   {
+      // music notes
+      osd_p->wr_char(20 + i, 15, 14); // music notes = 13, 14
+      // water
+      osd_p->wr_char(34, 2 + i, 6);
+      osd_p->wr_char(30, 0 + i, 6);
+      osd_p->wr_char(38, 4 + i, 6);
+      osd_p->wr_char(42, 6 + i, 6);
+      sleep_ms(500);
+      osd_p->clr_screen();
+      draw_bars(osd_p, bars);
+   }
    change_scene(0, frame_p);
 }
-void pet(health *bars, FrameCore *frame_p)
+void pet(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
    change_scene(3, frame_p);
-   (*bars).happiness = 10;
+   bars->happiness = 10;
+   for (int i = 0; i < 4; i++)
+   {
+      osd_p->wr_char(38 + i, 12, 2); // heart = 2
+      sleep_ms(1000);
+   }
+   
    change_scene(0, frame_p); // may look terrible bc it would constantly be switching whenever we pet (unless background doesnt change and only sprite does)
 }
-void game_over(FrameCore *frame_p, OsdCore *osd_p, Ps2Core *ps2_p)
+void game_over(FrameCore *frame_p, OsdCore *osd_p, Ps2Core *ps2_p, health *bars, TimerCore *timer_p)
 {
    bool reset = false;
-   while(!reset){
-      int x = 7;
-      int y = 30;
-      char gameover[] = "GAME OVER";
+   change_scene(GameOver, frame_p);
+   timer_p->pause();
+   int x = 20;
+   int y = 15;
+   char gameover[] = "GAME OVER";
+   while (!reset)
+   {
+      osd_p->set_color(0xf00, 0x000); // red/black
+      osd_p->wr_char(x - 1, y, 32); // big exclamation
       for (size_t i = 0; i < strlen(gameover); i++)
       {
-         osd_p->wr_char(x+i, y, gameover[i]);
+         osd_p->wr_char(x + i, y, gameover[i]);
       }
-
+      // draw exclamation marks
       char ch = 0;
       int keeb = ps2_p->get_kb_ch(&ch);
-      if(keeb == ' '){
-         reset = true;
+      if (keeb == 1)
+      {
+         if (ch == ' ')
+         {
+            reset = true;
+         }
       }
    }
-   change_scene(GameOver, frame_p);
+   // delete game over text
+   // for (size_t i = 0; i < strlen(gameover); i++)
+   // {
+   //    osd_p->wr_char(x + i, y, '\0');
+   // }
+   // reset values and go to default scene
+   change_scene(Default, frame_p);
+   osd_p->set_color(0xfff, 0x000);
+
+   bars->hunger = 10;
+   bars->cleanliness = 10;
+   bars->happiness = 10;
+
+   timer_p->clear();
+   timer_p->go();
 }
 
 // check the keyboard for a 'f' 's'
@@ -245,6 +229,14 @@ int keyboard_check(Ps2Core *ps2_p, int *id)
          else if (ch == 's')
          {
             return 1;
+         }
+         else if (ch == 'p')
+         {
+            return 2;
+         }
+         else if (ch == 'r')
+         {
+            return 3;
          }
       }
    }
@@ -290,53 +282,72 @@ acc_vals<int8_t> get_difference(SpiCore *spi_p)
 // checks for an acceleration value that's greater than a specified value
 bool acc_check(SpiCore *spi_p)
 {
-   const int MAX = 50;
+   const int MAX = 10;
+   // uart.disp(get_difference(spi_p).abs_acc());
    if (get_difference(spi_p).abs_acc() > MAX)
    {
+      // uart.disp("got a difference greater than max \r\n");
       return 1;
    }
-   return 0;
+   else
+   {
+      // uart.disp("didn't get a difference greater than max \r\n");
+      return 0;
+   }
 }
 
 // draw the bars (5 segments)
 void draw_bars(OsdCore *osd_p, health *bars)
 {
-   osd_p->bypass(0);
    osd_p->clr_screen();
-
    // bar parameters
-   unsigned num_tiles = 10;
-   unsigned space = 4;  // space between bars
-   unsigned bar2x = 37; // bar 2 x origin
-   unsigned bar1x = bar2x - (num_tiles + space);
-   unsigned bar3x = bar2x + num_tiles + space;
+   unsigned num_tiles = 10;         // length of each bar
+   unsigned space = 6;              // space between bars
+   unsigned cleanliness_bar_x = 34; // cleanliness bar x origin
+   unsigned hunger_bar_x = cleanliness_bar_x - (num_tiles + space);
+   unsigned happiness_bar_x = cleanliness_bar_x + num_tiles + space;
 
    // brackets for bar limits
-   osd_p->set_color(0xf00, 0x000); // red/black
-   osd_p->wr_char(bar1x - 1, 21, '[', 0);
-   osd_p->wr_char(bar1x + num_tiles, 21, ']', 0);
-   osd_p->wr_char(bar2x - 1, 21, '[', 0);
-   osd_p->wr_char(bar2x + num_tiles, 21, ']', 0);
-   osd_p->wr_char(bar3x - 1, 21, '[', 0);
-   osd_p->wr_char(bar3x + num_tiles, 21, ']', 0);
+   osd_p->set_color(0xfff, 0x000);
+   osd_p->wr_char(hunger_bar_x - 1, 21, '[', 0);
+   osd_p->wr_char(hunger_bar_x + num_tiles, 21, ']', 0);
+   osd_p->wr_char(cleanliness_bar_x - 1, 21, '[', 0);
+   osd_p->wr_char(cleanliness_bar_x + num_tiles, 21, ']', 0);
+   osd_p->wr_char(happiness_bar_x - 1, 21, '[', 0);
+   osd_p->wr_char(happiness_bar_x + num_tiles, 21, ']', 0);
 
    // hunger bar
-   for (unsigned i = bar1x; i < bar1x + (*bars).hunger; i++)
+   for (unsigned i = hunger_bar_x; i < hunger_bar_x + bars->hunger; i++)
    {
       osd_p->wr_char(i, 21, ' ', 1);
-      sleep_ms(100);
    }
    // cleanliness bar
-   for (unsigned i = bar2x; i < bar2x + (*bars).cleanliness; i++)
+   for (unsigned i = cleanliness_bar_x; i < cleanliness_bar_x + bars->cleanliness; i++)
    {
       osd_p->wr_char(i, 21, ' ', 1);
-      sleep_ms(100);
    }
    // happiness bar
-   for (unsigned i = bar3x; i < bar3x + (*bars).happiness; i++)
+   for (unsigned i = happiness_bar_x; i < happiness_bar_x + bars->happiness; i++)
    {
       osd_p->wr_char(i, 21, ' ', 1);
-      sleep_ms(100);
+   }
+
+   // text over bars (have to redraw bc osd gets cleared when bars refresh)
+   char hunger[] = "HUNGER";
+   char happiness[] = "HAPPINESS";
+   char cleanliness[] = "CLEANLINESS";
+
+   for (size_t i = 0; i < strlen(hunger); i++)
+   {
+      osd_p->wr_char(hunger_bar_x + i, 20, hunger[i]);
+   }
+   for (size_t i = 0; i < strlen(cleanliness); i++)
+   {
+      osd_p->wr_char(cleanliness_bar_x + i, 20, cleanliness[i]);
+   }
+   for (size_t i = 0; i < strlen(happiness); i++)
+   {
+      osd_p->wr_char(happiness_bar_x + i, 20, happiness[i]);
    }
 }
 
@@ -346,80 +357,91 @@ char get_digit(uint64_t number, int index)
    int digit = (number / dividend) % 10;
    return digit + '0';
 }
-
-void check_pet_health(TimerCore *timer, GpiCore *sw, health *bars, OsdCore *osd_p, FrameCore *frame_p, Ps2Core *ps2_p)
+void reset_health(health *bars)
 {
+   bars->happiness = 10;
+   bars->cleanliness = 10;
+   bars->hunger = 10;
+}
+void draw_timer(TimerCore *timer, GpiCore *sw, OsdCore *osd_p)
+{
+   // display timer and max_time
    uint64_t time = timer->read_time();
    uint64_t max_time = sw->read();
-
-   if (max_time < 1000000) { // 1s threshold for max time
-      max_time = 1000000;
+   if (max_time < 5000000)
+   { // 1s threshold for max time
+      max_time = 5000000;
    }
-
-   // display timer and max_time
-   osd_p->set_color(0xfff, 0x000);
-   osd_p->bypass(0);
-
-   for (int i = 0; i < 5; i++)
+   for (int i = 0; i < 8; i++)
    {
       osd_p->wr_char(13 - i, 2, get_digit(time, i), 0);
       osd_p->wr_char(13 - i, 3, get_digit(max_time, i), 0);
-      sleep_ms(100);
    }
+}
 
+void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *osd_p, FrameCore *frame_p, Ps2Core *ps2_p)
+{
+   uint64_t time = timer_p->read_time();
+   uint64_t max_time = sw_p->read();
+
+   if (max_time < 5000000)
+   { // 5s threshold for max time
+      max_time = 5000000;
+   }
+   draw_timer(timer_p, sw_p, osd_p);
    if (time >= max_time)
    {
-      (*bars).hunger--;
-      (*bars).happiness--;
-      (*bars).cleanliness--;
-
-      if ((*bars).hunger == 0 || (*bars).happiness == 0 || (*bars).cleanliness == 0)
-      {
-         // display game over screen, end game
-         game_over(frame_p, osd_p, ps2_p);
-         timer->pause();
-         // show restart button
-      }
+      bars->hunger--;
+      bars->happiness--;
+      bars->cleanliness--;
 
       draw_bars(osd_p, bars);
-      timer->clear();
+      if (bars->hunger == 0 || bars->happiness == 0 || bars->cleanliness == 0)
+      {
+         // display game over screen, end game
+         game_over(frame_p, osd_p, ps2_p, bars, timer_p);
+      }
+      timer_p->clear();
+      draw_bars(osd_p, bars);
    }
 }
 
 void draw_sprite(SpriteCore *hampster_p)
 {
    hampster_p->wr_ctrl(0x10);
-   hampster_p->move_xy(640/2, 480/2);
+   hampster_p->move_xy(640 / 2 - 32, 480 / 2 - 32);
 }
 
 // main game cycle
-void game_cycle(TimerCore *timer, Ps2Core *ps2_p, GpiCore *sw, SpiCore *spi_p, SpriteCore *ghost_p, int *id, health *bars, OsdCore *osd_p, FrameCore *frame_p)
+void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_p, SpriteCore *ghost_p, int *id, health *bars, OsdCore *osd_p, FrameCore *frame_p)
 {
 
    // decrement bars
-   check_pet_health(timer, sw, bars, osd_p, frame_p, ps2_p);
+   check_pet_health(timer_p, sw_p, bars, osd_p, frame_p, ps2_p);
 
    // check for user input
    int keeb = keyboard_check(ps2_p, id);
+   bool greater_than_acc = acc_check(spi_p);
    if (keeb == -1)
    {
       // invalid
    }
    else if (keeb == 0)
    {
-      feed(bars, frame_p);
+      feed(bars, frame_p, osd_p);
    }
    else if (keeb == 1)
    {
-      shower(bars, frame_p);
+      shower(bars, frame_p, osd_p);
    }
-   else if (acc_check(spi_p))
+   else if (keeb == 2)
    {
-      pet(bars, frame_p);
+      pet(bars, frame_p, osd_p);
    }
 
-   // accelerometer check
-   // if past some threshold, pet screen
+   if(greater_than_acc == 1){
+      pet(bars, frame_p, osd_p);
+   }
 
    // extra:
    // achievements?
@@ -447,10 +469,11 @@ TimerCore timer(get_slot_addr(BRIDGE_BASE, S0_SYS_TIMER));
 int main()
 {
    mouse.bypass(1);
+   osd.bypass(0);
+   osd.clr_screen();
+   timer.clear();
    timer.go();
-   const int8_t MAX_TAP = 45;
-   const acc_vals<int8_t> max_acceleration{MAX_TAP, 0, 0};
-
+   
    int id = -1;
    // instantiate bars
    health bars;
