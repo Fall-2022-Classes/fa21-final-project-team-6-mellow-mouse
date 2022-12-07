@@ -5,6 +5,7 @@
 #define SRC_TYPES_H_
 
 #include "chu_init.h"
+#include <math.h>
 
 enum Scene
 {

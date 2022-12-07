@@ -14,136 +14,42 @@
 #include "gpio_cores.h"
 #include "vga_core.h"
 #include "sseg_core.h"
-#include "ps2_core.h"
-#include "spi_core.h"
-#include "types.h"
 
+#include "types.h"
 #include "graphics.h"
 #include "gameplay.h"
 
-/**********************************************************************
- * Functions
- **********************************************************************/
-
-// check the keyboard for a 'f' 's'
-// return 0 if 'f', return 1 if 's', return -1 if none
-int keyboard_check(Ps2Core *ps2_p, int *id)
+void draw_achievement(const unsigned *total_cycles, OsdCore *osd_p)
 {
-   char ch = 0;
-
-   if (*id == -1)
+   if (*total_cycles > 9)
    {
-      sleep_ms(100);
-      *id = ps2_p->init();
-   }
-   if (*id == 1)
-   {
-      if (ps2_p->get_kb_ch(&ch))
+      char text[] = "Achievement: Live for 10 cycles";
+      for (int i = 0; i < strlen(text); i++)
       {
-         uart.disp("\r\nch: ");
-         uart.disp(static_cast<unsigned char>(ch), 16);
-
-         if (ch == 'f')
-         {
-            return 0;
-         }
-         else if (ch == 's')
-         {
-            return 1;
-         }
-         else if (ch == 'p')
-         {
-            return 2;
-         }
-         else if (ch == 'r')
-         {
-            return 3;
-         }
+         osd_p->wr_char(2, 2, text[i]);
       }
    }
-   return -1;
 }
 
-/**
- * @brief Get the difference of acceleration between 10ms
- * @note This might be too long to detect a tap. This also blocks until both
- * values are obtained and the difference is calculated
- *
- * @param spi_p spi core
- * @return acc_vals struct containing the difference in acceleration
- */
-acc_vals<int8_t> get_difference(SpiCore *spi_p)
-{
-   const uint8_t RD_CMD = 0x0b;
-   // const uint8_t PART_ID_REG = 0x02;
-   const uint8_t DATA_REG = 0x08;
-   acc_vals<int8_t> values;
-   spi_p->set_freq(400000);
-   spi_p->set_mode(0, 0);
-   spi_p->assert_ss(0);       // activate
-   spi_p->transfer(RD_CMD);   // for read operation
-   spi_p->transfer(DATA_REG); //
-   values.x_acc = spi_p->transfer(0x00);
-   values.y_acc = spi_p->transfer(0x00);
-   values.z_acc = spi_p->transfer(0x00);
-   spi_p->deassert_ss(0);
-   // sleep for 100Hz sample frequency
-   // The max might be 400Hz, but choose 100Hz for safety
-   sleep_ms(10);
-   spi_p->assert_ss(0);       // activate
-   spi_p->transfer(RD_CMD);   // for read operation
-   spi_p->transfer(DATA_REG); //
-   values.x_acc -= spi_p->transfer(0x00);
-   values.y_acc -= spi_p->transfer(0x00);
-   values.z_acc -= spi_p->transfer(0x00);
-   spi_p->deassert_ss(0);
-   return values;
-}
-
-// checks for an acceleration value that's greater than a specified value
-bool acc_check(SpiCore *spi_p)
-{
-   const int MAX = 20;
-   // uart.disp(get_difference(spi_p).abs_acc());
-   if (get_difference(spi_p).abs_acc() > MAX)
-   {
-      // uart.disp("got a difference greater than max \r\n");
-      return 1;
-   }
-   else
-   {
-      // uart.disp("didn't get a difference greater than max \r\n");
-      return 0;
-   }
-}
-
-double map(double x, double in_min, double in_max, double out_min,
-           double out_max)
-{
-   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *osd_p, FrameCore *frame_p, Ps2Core *ps2_p)
+void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *osd_p, FrameCore *frame_p, Ps2Core *ps2_p, unsigned *total_cycles)
 {
    uint64_t time = timer_p->read_time();
    uint64_t max_time = map(sw_p->read(), 0, 65536 - 1, 5000000, 20000000);
 
-   // if (max_time < 5000000)
-   // { // 5s threshold for max time
-   //    max_time = 5000000;
-   // }
-   // draw_timer(max_time, time, sw_p, osd_p);
    if (time >= max_time)
    {
       bars->hunger--;
       bars->happiness--;
       bars->cleanliness--;
+      (*total_cycles)++;
 
       draw_bars(osd_p, bars);
+      // draw_achievement(total_cycles, osd_p);
       if (bars->hunger == 0 || bars->happiness == 0 || bars->cleanliness == 0)
       {
          // display game over screen, end game
          game_over(frame_p, osd_p, ps2_p, bars, timer_p);
+         *total_cycles = 0;
       }
       timer_p->clear();
       draw_bars(osd_p, bars);
@@ -151,11 +57,11 @@ void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *
 }
 
 // main game cycle
-void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_p, SpriteCore *ghost_p, int *id, health *bars, OsdCore *osd_p, FrameCore *frame_p)
+void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_p, SpriteCore *ghost_p, int *id, health *bars, OsdCore *osd_p, FrameCore *frame_p, unsigned *total_cycles)
 {
 
    // decrement bars
-   check_pet_health(timer_p, sw_p, bars, osd_p, frame_p, ps2_p);
+   check_pet_health(timer_p, sw_p, bars, osd_p, frame_p, ps2_p, total_cycles);
 
    // check for user input
    int keeb = keyboard_check(ps2_p, id);
@@ -181,14 +87,6 @@ void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_
    {
       pet(bars, frame_p, osd_p);
    }
-
-   // extra:
-   // achievements?
-   // colors
-   // other sprites: sleep, shower, feeding
-   // sprites for age
-   // points for living
-   // minigames for different actions
 }
 
 // external core instantiation
@@ -207,14 +105,16 @@ TimerCore timer(get_slot_addr(BRIDGE_BASE, S0_SYS_TIMER));
 
 int main()
 {
+   // init values and cores
+   unsigned total_cycles = 0;
+   int id = -1;
    mouse.bypass(1);
    osd.bypass(0);
    osd.clr_screen();
    timer.clear();
    timer.go();
 
-   int id = -1;
-   // instantiate bars
+   // instantiate bars and draw graphics
    health bars;
    draw_sprite(&hampster);
    draw_bars(&osd, &bars);
@@ -222,9 +122,7 @@ int main()
 
    while (1)
    {
-      // ghost_check(&ghost);
-      game_cycle(&timer, &ps2, &sw, &spi, &hampster, &id, &bars, &osd, &frame);
-      // ghost.wr_ctrl(sw.read() >> 11);
+      game_cycle(&timer, &ps2, &sw, &spi, &hampster, &id, &bars, &osd, &frame, &total_cycles);
    }
 
 } // main
