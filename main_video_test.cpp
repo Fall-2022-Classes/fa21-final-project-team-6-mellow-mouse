@@ -21,12 +21,8 @@
 #include "graphics.h"
 #include "gameplay.h"
 
-/**********************************************************************
- * Functions
- **********************************************************************/
 
-
-// check the keyboard for a 'f' 's'
+// check the keyboard input
 // return 0 if 'f', return 1 if 's', return -1 if none
 int keyboard_check(Ps2Core *ps2_p, int *id)
 {
@@ -64,6 +60,7 @@ int keyboard_check(Ps2Core *ps2_p, int *id)
    }
    return -1;
 }
+
 
 /**
  * @brief Get the difference of acceleration between 10ms
@@ -108,12 +105,10 @@ bool acc_check(SpiCore *spi_p)
    // uart.disp(get_difference(spi_p).abs_acc());
    if (get_difference(spi_p).abs_acc() > MAX)
    {
-      // uart.disp("got a difference greater than max \r\n");
       return 1;
    }
    else
    {
-      // uart.disp("didn't get a difference greater than max \r\n");
       return 0;
    }
 }
@@ -130,10 +125,6 @@ void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *
    uint64_t time = timer_p->read_time();
    uint64_t max_time = map(sw_p->read(), 0, 65536 - 1, 5000000, 20000000);
 
-   // if (max_time < 5000000)
-   // { // 5s threshold for max time
-   //    max_time = 5000000;
-   // }
    draw_timer(max_time, time, sw_p, osd_p);
    if (time >= max_time)
    {
@@ -151,6 +142,7 @@ void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *
       draw_bars(osd_p, bars);
    }
 }
+
 
 // main game cycle
 void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_p, SpriteCore *ghost_p, int *id, health *bars, OsdCore *osd_p, FrameCore *frame_p)
@@ -183,14 +175,6 @@ void game_cycle(TimerCore *timer_p, Ps2Core *ps2_p, GpiCore *sw_p, SpiCore *spi_
    {
       pet(bars, frame_p, osd_p);
    }
-
-   // extra:
-   // achievements?
-   // colors
-   // other sprites: sleep, shower, feeding
-   // sprites for age
-   // points for living
-   // minigames for different actions
 }
 
 // external core instantiation
@@ -209,6 +193,7 @@ TimerCore timer(get_slot_addr(BRIDGE_BASE, S0_SYS_TIMER));
 
 int main()
 {
+   // initialize values
    mouse.bypass(1);
    osd.bypass(0);
    osd.clr_screen();
@@ -216,7 +201,7 @@ int main()
    timer.go();
 
    int id = -1;
-   // instantiate bars
+   // instantiate bars and graphics
    health bars;
    draw_sprite(&hampster);
    draw_bars(&osd, &bars);
@@ -224,9 +209,7 @@ int main()
 
    while (1)
    {
-      // ghost_check(&ghost);
       game_cycle(&timer, &ps2, &sw, &spi, &hampster, &id, &bars, &osd, &frame);
-      // ghost.wr_ctrl(sw.read() >> 11);
    }
 
 } // main
