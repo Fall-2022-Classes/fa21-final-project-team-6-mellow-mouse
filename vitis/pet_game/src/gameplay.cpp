@@ -3,14 +3,18 @@
 #include <math.h>
 #include <cstring>
 
-
 void feed(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
    // draw dots for food
    change_scene(1, frame_p);
    bars->hunger = 10;
+   char feeding[] = "Feeding...";
    for (int i = 0; i < 6; i++)
    {
+      for (size_t i = 0; i < strlen(feeding); i++)
+      {
+         osd_p->wr_char(34 + i, 5, feeding[i]);
+      }
       osd_p->wr_char(33 + i, 15, 7); // dots = 6,7,8,9
       sleep_ms(500);
       osd_p->clr_screen();
@@ -19,14 +23,18 @@ void feed(health *bars, FrameCore *frame_p, OsdCore *osd_p)
    change_scene(0, frame_p);
 }
 
-
 void shower(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
    // draw water drops and maybe music note?
    change_scene(2, frame_p);
    bars->cleanliness = 10;
+   char showering[] = "Showering...";
    for (int i = 0; i < 6; i++)
    {
+      for (size_t i = 0; i < strlen(showering); i++)
+      {
+         osd_p->wr_char(34 + i, 5, showering[i]);
+      }
       // music notes
       osd_p->wr_char(38 - (i % 3), 13 - (i % 3), 14); // music notes = 13, 14
       // water
@@ -42,22 +50,24 @@ void shower(health *bars, FrameCore *frame_p, OsdCore *osd_p)
    change_scene(0, frame_p);
 }
 
-
 void pet(health *bars, FrameCore *frame_p, OsdCore *osd_p)
 {
-    change_scene(3, frame_p);
-    bars->happiness = 10;
-    for (int i = 0; i < 4; i++)
-    {
-        osd_p->wr_char(38 + i, 12, 2); // heart = 2
-        sleep_ms(1000);
-    }
-
-    change_scene(0, frame_p);
-    osd_p->clr_screen();
-    draw_bars(osd_p, bars);
+   change_scene(3, frame_p);
+   bars->happiness = 10;
+   char petting[] = "Petting...";
+   for (int i = 0; i < 4; i++)
+   {
+      for (size_t i = 0; i < strlen(petting); i++)
+      {
+         osd_p->wr_char(34 + i, 5, petting[i]);
+      }
+      osd_p->wr_char(38 + i, 12, 2); // heart = 2
+      sleep_ms(1000);
+   }
+   change_scene(0, frame_p);
+   osd_p->clr_screen();
+   draw_bars(osd_p, bars);
 }
-
 
 void game_over(FrameCore *frame_p, OsdCore *osd_p, Ps2Core *ps2_p, health *bars, TimerCore *timer_p)
 {

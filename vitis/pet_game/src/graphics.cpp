@@ -77,6 +77,23 @@ void draw_bars(OsdCore *osd_p, health *bars)
    {
       osd_p->wr_char(happiness_bar_x + i, 20, happiness[i]);
    }
+
+   // controls
+   char feed[] = "press 'f' to feed";
+   char shower[] = "press 's' to shower";
+   char pet[] = "tap, shake, or press 'p' to pet";
+   for (size_t i = 0; i < strlen(feed); i++)
+   {
+      osd_p->wr_char(hunger_bar_x + i, 24, feed[i]);
+   }
+   for (size_t i = 0; i < strlen(shower); i++)
+   {
+      osd_p->wr_char(hunger_bar_x + i, 25, shower[i]);
+   }
+   for (size_t i = 0; i < strlen(pet); i++)
+   {
+      osd_p->wr_char(hunger_bar_x + i, 26, pet[i]);
+   }
 }
 
 void draw_timer(uint64_t max_time, uint64_t time, GpiCore *sw, OsdCore *osd_p)

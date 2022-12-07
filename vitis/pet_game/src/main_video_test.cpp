@@ -25,7 +25,6 @@
  * Functions
  **********************************************************************/
 
-
 // check the keyboard for a 'f' 's'
 // return 0 if 'f', return 1 if 's', return -1 if none
 int keyboard_check(Ps2Core *ps2_p, int *id)
@@ -118,7 +117,6 @@ bool acc_check(SpiCore *spi_p)
    }
 }
 
-
 double map(double x, double in_min, double in_max, double out_min,
            double out_max)
 {
@@ -134,7 +132,7 @@ void check_pet_health(TimerCore *timer_p, GpiCore *sw_p, health *bars, OsdCore *
    // { // 5s threshold for max time
    //    max_time = 5000000;
    // }
-   draw_timer(max_time, time, sw_p, osd_p);
+   // draw_timer(max_time, time, sw_p, osd_p);
    if (time >= max_time)
    {
       bars->hunger--;
