@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.def": "cpp",
-        "*.inc": "cpp",
-        "cmath": "cpp"
-    }
-}
